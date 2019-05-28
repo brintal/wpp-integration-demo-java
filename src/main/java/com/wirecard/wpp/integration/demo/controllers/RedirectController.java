@@ -1,8 +1,10 @@
 package com.wirecard.wpp.integration.demo.controllers;
 
 
+import com.wirecard.wpp.integration.demo.ConfigProperties;
+import com.wirecard.wpp.integration.demo.LastTransactionStore;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,17 +21,28 @@ import java.util.Base64;
 public class RedirectController {
 
     private static final String SUCCESS = "/success";
+    private static final String NOTIFICATION = "/notification";
     private static final String FAIL = "/fail";
     private static final String CANCEL = "/cancel";
 
-    @Value("${ee.secretkey}")
-    private String merchantSecretKey;
 
-    @RequestMapping(value = SUCCESS, method = RequestMethod.POST)
+    @Autowired
+    private ConfigProperties.WirecardConfig ccConfig;
+    @Autowired
+    private ConfigProperties.WirecardConfig epsConfig;
+
+    @Autowired
+    private LastTransactionStore lastTransactionStore;
+
+    @RequestMapping(value = SUCCESS)
     public ModelAndView success(HttpServletRequest request) throws Exception {
         return this.prepareDataForView(request)
                 .addObject("msg", "Transaction was success")
                 .addObject("status", "Success");
+    }
+
+    @RequestMapping(value = NOTIFICATION, method = RequestMethod.POST)
+    public void notification(HttpServletRequest request) throws Exception {
     }
 
     @RequestMapping(value = FAIL, method = RequestMethod.POST)
@@ -48,6 +61,7 @@ public class RedirectController {
 
     private ModelAndView prepareDataForView(HttpServletRequest request) throws Exception {
         JSONObject jsonObject = new JSONObject(this.decode(request.getParameter("response-base64")));
+        lastTransactionStore.setLastTransactionId(jsonObject.getJSONObject("payment").get("transaction-id").toString());
         return new ModelAndView("result")
                 .addObject("responseSignatureBase64", request.getParameter("response-signature-base64"))
                 .addObject("responseSignatureAlgorithm", request.getParameter("response-signature-algorithm"))
@@ -67,7 +81,7 @@ public class RedirectController {
 
     private boolean isValidSignature(String responseBase64, String responseBase64Signature, String responseSignatureAlgorithm) throws Exception {
         Mac mac = Mac.getInstance(responseSignatureAlgorithm);
-        mac.init(new SecretKeySpec(merchantSecretKey.getBytes("UTF-8"), responseSignatureAlgorithm));
+        mac.init(new SecretKeySpec(ccConfig.getSecretkey().getBytes("UTF-8"), responseSignatureAlgorithm));
         return responseBase64Signature != null && responseBase64Signature
                 .equals(DatatypeConverter.printBase64Binary(mac.doFinal(responseBase64.getBytes("UTF-8"))));
     }

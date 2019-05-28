@@ -1,0 +1,18 @@
+{
+  "payment":{
+    "merchant-account-id":{
+      "value":""
+    },
+    "request-id": "",
+    "transaction-type":"referenced-purchase",
+    "parent-transaction-id": "",
+    "requested-amount":{
+      "value":10,
+      "currency":"EUR"
+    },
+    "periodic": {
+      "periodic-type": "recurring",
+      "sequence-type": "recurring"
+    }
+  }
+}

@@ -4,13 +4,23 @@
       "value":""
     },
     "request-id": "",
-    "transaction-type":"purchase",
+    "transaction-type":"debit",
     "requested-amount":{
       "value":10,
       "currency":"EUR"
     },
     "payment-methods":{
       "payment-method":[]
+    },
+    "bank-account": {
+      "bic": "BWFBATW1XXX"
+    },
+    "notifications": {
+      "notification": [
+        {
+          "url":"https://hc-ping.com/b5be8106-c6f9-429e-9801-56cfb44ddb91"
+        }
+      ]
     },
     "success-redirect-url": "http://localhost:8080/success",
     "fail-redirect-url": "http://localhost:8080/fail",
