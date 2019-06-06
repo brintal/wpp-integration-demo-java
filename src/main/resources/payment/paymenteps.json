@@ -16,6 +16,7 @@
       "bic": "BWFBATW1XXX"
     },
     "notifications": {
+      "format": "application/json-signed",
       "notification": [
         {
           "url":"https://hc-ping.com/b5be8106-c6f9-429e-9801-56cfb44ddb91"
